@@ -1,0 +1,19 @@
+{
+    "name": "kana",
+    "version": "0.0.1",
+    "title": "Kana input plugin",
+    "author": {
+        "name": "Andreas Argelius",
+        "email": "andreas@argeli.us",
+        "url": "http://argeli.us"
+    },
+    "licenses": [
+        "type": "MIT",
+        "url": "http://opensource.org/licenses/MIT"
+    ],
+    "dependencies": {
+        "jquery": ">=1.8"
+    },
+    "description": "A jQuery plugin that adds kana (hiragana or katakana) functionality to an input field.",
+    "keywords": ["input", "ime", "kana", "japanese", "hiragana", "katakana"]
+}
