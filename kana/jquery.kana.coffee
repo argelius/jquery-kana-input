@@ -3,34 +3,56 @@ $ ->
         # Escape string for use in regex.
         str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&")
 
-    replace_n = (str) ->
-        # Replace n with ん
-        re = /n[^n]/
-        match = str.match re
-        if match?
-            str = str.replace re, "ん#{match[0][1]}"
-        str
+    getCursorPosition = (element) ->
+        el = $(element).get 0
+        pos = 0
+
+        if "selectionStart" of el
+            pos = el.selectionStart
+        else if "selection" of document
+            el.focus()
+            sel = document.selection.createRange()
+            selLength = document.selection.createRange().text.length
+            sel.moveStart "character", -el.value.length
+            pos = sel.text.length - selLength
+        pos
+
+    setCursorPosition = (element, pos) ->
+        element.selectionStart = element.selectionEnd = pos
 
     $.fn.kana = (options) ->
         opts = $.extend {}, $.fn.kana.defaults, options
-
-        @on "input", =>
+        input = ""
+        lastPos = getCursorPosition(this)
+        
+        @on "input", ->
             table = $.fn.kana.tables[opts.mode]
-            v = @val()
-            match = v.match(/[a-z\-\.]+$/)
-            if match?
-                tail = match[0]
+            currentPos = getCursorPosition(this)
+            val = $(this).val()
 
-                while tail.length
-                    re = new RegExp "#{escape tail}$"
-                    if tail of table
-                        v = v.replace(re, table[tail])
-                        break
-                    tail = tail[1..]
-            
-            v = replace_n(v)
+            # Should start a new string if cursor moved.
+            if currentPos != lastPos+1
+                input = ""
 
-            @val(v)
+            input += val[currentPos-1] or ""
+
+            tmp = input
+            while tmp.length
+                if tmp of table
+                    # Translate string to kana.
+                    val = val[0...currentPos-tmp.length] + table[tmp] + val[currentPos...val.length]
+                    $(this).val(val)
+                    setCursorPosition(this, currentPos-tmp.length+table[tmp].length)
+        
+                    if table[tmp][0] == "ん"
+                        input = table[tmp][1]
+                    else
+                        input = ""
+                    break
+                
+                tmp = tmp[1..input.length]
+
+            lastPos = currentPos
 
     $.fn.kana.defaults = {
         "mode": "hiragana"
@@ -258,5 +280,110 @@ $ ->
             bb: "っb"
             nn: "ん"
             mm: "っm"
+            nq: "んq"
+            nw: "んw"
+            nr: "んr"
+            nt: "んt"
+            np: "んp"
+            ns: "んs"
+            nd: "んd"
+            nf: "んf"
+            ng: "んg"
+            nh: "んh"
+            nj: "んj"
+            nk: "んk"
+            nl: "んl"
+            nz: "んz"
+            nx: "んx"
+            nc: "んc"
+            nv: "んv"
+            nb: "んb"
+            nm: "んm"
+            "1": "１"
+            "2": "２"
+            "3": "３"
+            "4": "４"
+            "5": "５"
+            "6": "６"
+            "7": "７"
+            "8": "８"
+            "9": "９"
+            "0": "０"
             "-": "ー"
+            "_": "＿"
             ".": "。"
+            ",": "、"
+            ":": "："
+            ";": "；"
+            "'": "’"
+            "*": "＊"
+            "<": "＜"
+            ">": "＞"
+            "|": "｜"
+            "+": "＋"
+            "!": "！"
+            "\"": "”"
+            "#": "＃"
+            "%": "％"
+            "&": "＆"
+            "(": "（"
+            ")": "）"
+            "=": "＝"
+            "?": "？"
+            "@": "＠"
+            "$": "＄"
+            "¥": "￥"
+            "{": "｛"
+            "}": "｝"
+            "[": "「"
+            "]": "」"
+            "/": "／"
+            "\\": "＼"
+            "n1": "ん１"
+            "n2": "ん２"
+            "n3": "ん３"
+            "n4": "ん４"
+            "n5": "ん５"
+            "n6": "ん６"
+            "n7": "ん７"
+            "n8": "ん８"
+            "n9": "ん９"
+            "n0": "ん０"
+            "n-": "んー"
+            "n_": "ん＿"
+            "n.": "ん。"
+            "n,": "ん、"
+            "n:": "ん："
+            "n;": "ん；"
+            "n'": "ん’"
+            "n*": "ん＊"
+            "n<": "ん＜"
+            "n>": "ん＞"
+            "n|": "ん｜"
+            "n£": "ん£"
+            "n€": "ん€"
+            "n¡": "ん¡"
+            "n+": "ん＋"
+            "n!": "ん！"
+            "n\"": "ん”"
+            "n#": "ん＃"
+            "n%": "ん％"
+            "n&": "ん＆"
+            "n(": "ん（"
+            "n)": "ん）"
+            "n=": "ん＝"
+            "n?": "ん？"
+            "n@": "ん＠"
+            "n$": "ん＄"
+            "n¥": "ん￥"
+            "n{": "ん｛"
+            "n}": "ん｝"
+            "n[": "ん「"
+            "n]": "ん」"
+            "n/": "ん／"
+            "n\\": "ん＼"
+            "nå": "んå"
+            "nä": "んä"
+            "nö": "んö"
+            "nø": "んø"
+            "næ": "んæ"
