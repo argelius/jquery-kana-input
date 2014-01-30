@@ -2,10 +2,7 @@
 (function() {
 
   $(function() {
-    var escape, getCursorPosition, setCursorPosition;
-    escape = function(str) {
-      return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
-    };
+    var getCursorPosition, hiraganaToKatakana, k, setCursorPosition, v, _ref, _results;
     getCursorPosition = function(element) {
       var el, pos, sel, selLength;
       el = $(element).get(0);
@@ -22,15 +19,40 @@
       return pos;
     };
     setCursorPosition = function(element, pos) {
-      return element.selectionStart = element.selectionEnd = pos;
+      var el;
+      el = $(element).get(0);
+      el.focus();
+      if ("selectionStart" in el) {
+        return element.selectionStart = element.selectionEnd = pos;
+      }
     };
+    hiraganaToKatakana = function(str) {
+      str = str.split("").map(function(c) {
+        var code;
+        code = c.charCodeAt(0);
+        if (code >= 0x3041 && code <= 0x3094) {
+          return String.fromCharCode(code + (0x30A1 - 0x3041));
+        } else {
+          return c;
+        }
+      });
+      return str.join("");
+    };
+    console.log(hiraganaToKatakana("きょう"));
     $.fn.kana = function(options) {
-      var input, lastPos, opts;
+      var input, lastPos, opts, _ref;
       opts = $.extend({}, $.fn.kana.defaults, options);
+      if ((_ref = opts.mode) !== "hiragana" && _ref !== "katakana" && _ref !== "romaji") {
+        throw "Mode must be either hiragana, katakana or romaji.";
+      }
       input = "";
       lastPos = getCursorPosition(this);
-      return this.on("input", function() {
-        var currentPos, table, tmp, val;
+      this.unbind("input");
+      this.on("input", function() {
+        var currentPos, table, tmp, val, _ref1, _ref2;
+        if ((_ref1 = opts.mode) !== "hiragana" && _ref1 !== "katakana") {
+          return;
+        }
         table = $.fn.kana.tables[opts.mode];
         currentPos = getCursorPosition(this);
         val = $(this).val();
@@ -44,7 +66,7 @@
             val = val.slice(0, currentPos - tmp.length) + table[tmp] + val.slice(currentPos, val.length);
             $(this).val(val);
             setCursorPosition(this, currentPos - tmp.length + table[tmp].length);
-            if (table[tmp][0] === "ん") {
+            if ((_ref2 = table[tmp][0]) === "ん" || _ref2 === "ン" || _ref2 === "っ" || _ref2 === "ッ") {
               input = table[tmp][1];
             } else {
               input = "";
@@ -55,11 +77,12 @@
         }
         return lastPos = currentPos;
       });
+      return this;
     };
     $.fn.kana.defaults = {
       "mode": "hiragana"
     };
-    return $.fn.kana.tables = {
+    $.fn.kana.tables = {
       hiragana: {
         a: "あ",
         i: "い",
@@ -310,6 +333,7 @@
         "8": "８",
         "9": "９",
         "0": "０",
+        " ": "　",
         "-": "ー",
         "_": "＿",
         ".": "。",
@@ -350,6 +374,7 @@
         "n8": "ん８",
         "n9": "ん９",
         "n0": "ん０",
+        "n ": "ん　",
         "n-": "んー",
         "n_": "ん＿",
         "n.": "ん。",
@@ -390,6 +415,14 @@
         "næ": "んæ"
       }
     };
+    $.fn.kana.tables["katakana"] = {};
+    _ref = $.fn.kana.tables["hiragana"];
+    _results = [];
+    for (k in _ref) {
+      v = _ref[k];
+      _results.push($.fn.kana.tables["katakana"][k] = hiraganaToKatakana(v));
+    }
+    return _results;
   });
 
 }).call(this);

@@ -8,7 +8,8 @@
 
 <script>
     $(document).ready(function() {
-        $("input").kana();
+        $("input#hiragana").kana({mode: "hiragana"});
+        $("input#katakana").kana({mode: "katakana"});
     });
 </script>
 <!--[if IE]>
@@ -16,6 +17,7 @@
 <![endif]-->
 </head>
 <body>
-    <input type="text">
+    <input id="hiragana" type="text">
+    <input id="katakana" type="text">
 </body>
 </html>

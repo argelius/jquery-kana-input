@@ -1,12 +1,16 @@
-$ ->
-    escape = (str) ->
-        # Escape string for use in regex.
-        str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&")
+#
+# jQuery-kana v0.1.0
+#
+# jQuery Plugin that adds hiragana and katakana functionality to an input tag.
+#
+# Written by Andreas Argelius (andreas@argeli.us)
+# Release under the BSD license.
+#
 
+$ ->
     getCursorPosition = (element) ->
         el = $(element).get 0
         pos = 0
-
         if "selectionStart" of el
             pos = el.selectionStart
         else if "selection" of document
@@ -18,14 +22,40 @@ $ ->
         pos
 
     setCursorPosition = (element, pos) ->
-        element.selectionStart = element.selectionEnd = pos
+        el = $(element).get 0
+        el.focus()
+
+        if "selectionStart" of el
+            element.selectionStart = element.selectionEnd = pos
+
+    hiraganaToKatakana = (str) ->
+        str = str.split("").map (c) ->
+            code = c.charCodeAt(0)
+            if code >= 0x3041 and code <= 0x3094
+                # Difference between ぁ and ァ.
+                String.fromCharCode(code + (0x30A1-0x3041))
+            else
+                c
+        str.join("")
+
+    console.log hiraganaToKatakana "きょう"
 
     $.fn.kana = (options) ->
         opts = $.extend {}, $.fn.kana.defaults, options
+
+        if opts.mode not in ["hiragana", "katakana", "romaji"]
+            throw "Mode must be either hiragana, katakana or romaji."
+
         input = ""
         lastPos = getCursorPosition(this)
-        
+       
+        # Unbind event if it was already initialized.
+        @unbind "input"
+
         @on "input", ->
+            if opts.mode not in ["hiragana", "katakana"]
+                return
+
             table = $.fn.kana.tables[opts.mode]
             currentPos = getCursorPosition(this)
             val = $(this).val()
@@ -44,7 +74,7 @@ $ ->
                     $(this).val(val)
                     setCursorPosition(this, currentPos-tmp.length+table[tmp].length)
         
-                    if table[tmp][0] == "ん"
+                    if table[tmp][0] in ["ん", "ン", "っ", "ッ"]
                         input = table[tmp][1]
                     else
                         input = ""
@@ -53,6 +83,7 @@ $ ->
                 tmp = tmp[1..input.length]
 
             lastPos = currentPos
+        this
 
     $.fn.kana.defaults = {
         "mode": "hiragana"
@@ -309,6 +340,7 @@ $ ->
             "8": "８"
             "9": "９"
             "0": "０"
+            " ": "　"
             "-": "ー"
             "_": "＿"
             ".": "。"
@@ -349,6 +381,7 @@ $ ->
             "n8": "ん８"
             "n9": "ん９"
             "n0": "ん０"
+            "n ": "ん　"
             "n-": "んー"
             "n_": "ん＿"
             "n.": "ん。"
@@ -387,3 +420,8 @@ $ ->
             "nö": "んö"
             "nø": "んø"
             "næ": "んæ"
+
+    # Make katakana table.
+    $.fn.kana.tables["katakana"] = {}
+    for k, v of $.fn.kana.tables["hiragana"]
+        $.fn.kana.tables["katakana"][k] = hiraganaToKatakana(v)
