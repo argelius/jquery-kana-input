@@ -27,6 +27,14 @@ It's possible to re-initialize an element. The following code
 
 will result in a normal input tag.
 
+### See it in action
+
+The plugin is used in my [dicationary application](http://mynakama.se/ "Nakama"). Please go there to try it out.
+
+### License
+
+The source code is released under the MIT license. Please use it as you like.
+
 ### If something breaks.
 
 Please send bug reports and suggestions to andreas@argeli.us.
