@@ -38,8 +38,6 @@ $ ->
                 c
         str.join("")
 
-    console.log hiraganaToKatakana "きょう"
-
     $.fn.kana = (options) ->
         opts = $.extend {}, $.fn.kana.defaults, options
 

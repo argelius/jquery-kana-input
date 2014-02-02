@@ -38,7 +38,6 @@
       });
       return str.join("");
     };
-    console.log(hiraganaToKatakana("きょう"));
     $.fn.kana = function(options) {
       var input, lastPos, opts, _ref;
       opts = $.extend({}, $.fn.kana.defaults, options);
