@@ -29,7 +29,7 @@ will result in a normal input tag.
 
 ### See it in action
 
-The plugin is used in my [dicationary application](http://mynakama.se/ "Nakama"). Please go there to try it out.
+The plugin is used in my [dictionary application](http://mynakama.se/ "Nakama"). Please go there to try it out.
 
 ### License
 
